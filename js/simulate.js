@@ -247,36 +247,58 @@ export function runDraft(state) {
   return { drafted: true, pick: rank, round, team, rank };
 }
 
+const ROOKIE_SCALE_TOP = 12_500_000;
+const ROOKIE_SCALE_BOTTOM = 2_300_000;
+const VET_SALARY_FLOOR = 1_500_000;
+const VET_SALARY_CAP = 55_000_000;
+
 export function contractOffer(state, drafted, pickInfo) {
   const p = state.player;
   const ov = overall(p.attrs);
   let base;
+  let years;
+  let guaranteed;
+
   if (drafted && pickInfo?.round === 1) {
-    base = 1_200_000 + (30 - pickInfo.pick) * 250_000;
+    const slot = (pickInfo.pick - 1) / 29;
+    base = ROOKIE_SCALE_TOP - slot * (ROOKIE_SCALE_TOP - ROOKIE_SCALE_BOTTOM);
+    base *= clamp(0.9 + (ov - 65) / 200, 0.85, 1.15);
+    years = 4;
+    guaranteed = true;
   } else if (drafted && pickInfo?.round === 2) {
-    base = 500_000 + randInt(0, 300_000);
+    base = 1_100_000 + randInt(0, 1_300_000);
+    base *= clamp(0.85 + (ov - 55) / 200, 0.8, 1.2);
+    years = randInt(1, 2);
+    guaranteed = false;
   } else {
-    base = 200_000 + randInt(0, 150_000);
+    base = 900_000 + randInt(0, 350_000);
+    years = 1;
+    guaranteed = false;
   }
-  base *= clamp(ov / 70, 0.6, 1.3);
-  const years = drafted && pickInfo?.round === 1 ? 4 : randInt(1, 2);
+
   return {
     years,
-    salaryPerYear: Math.round(base),
-    guaranteed: drafted && pickInfo?.round === 1,
+    salaryPerYear: Math.round(clamp(base, 500_000, ROOKIE_SCALE_TOP)),
+    guaranteed,
   };
 }
 
-export function renegotiateContract(state) {
+export function renegotiateContract(state, options = {}) {
   const p = state.player;
   const ov = overall(p.attrs);
   const fameFactor = clamp(p.fame / 100, 0, 1);
-  const base = 900_000 * Math.pow(ov / 50, 3.1) * (1 + fameFactor * 0.6);
-  const years = randInt(2, 5);
+  const skillCurve = Math.pow(clamp((ov - 40) / 59, 0, 1), 2.4);
+  let base = VET_SALARY_FLOOR + (VET_SALARY_CAP - VET_SALARY_FLOOR) * skillCurve;
+  base *= 1 + fameFactor * 0.12;
+  if (options.loyalty) base *= 1.04;
+  if (options.freeAgent) base *= 1 + randFloat(-0.05, 0.08);
+
+  const years = ov >= 85 ? randInt(3, 5) : ov >= 65 ? randInt(2, 4) : randInt(1, 3);
+
   return {
     years,
-    salaryPerYear: Math.round(clamp(base, 300_000, 55_000_000)),
-    guaranteed: ov >= 70,
+    salaryPerYear: Math.round(clamp(base, VET_SALARY_FLOOR, VET_SALARY_CAP)),
+    guaranteed: ov >= 60,
   };
 }
 
