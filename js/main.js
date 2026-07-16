@@ -319,10 +319,10 @@ const Controller = {
 
   continueNBA() {
     if (state.player.contract && state.player.contract.years <= 0) {
-      const offerA = renegotiateContract(state);
+      const offerA = renegotiateContract(state, { loyalty: true });
       offerA.label = `Re-sign with the ${state.player.nbaTeam.name}`;
       const newTeam = choice(NBA_TEAMS.filter((t) => t.abbr !== state.player.nbaTeam.abbr));
-      const offerB = renegotiateContract(state);
+      const offerB = renegotiateContract(state, { freeAgent: true });
       offerB.label = `Sign with the ${newTeam.name}`;
       offerB.__team = newTeam;
       state.meta.contractOffers = [offerA, offerB];
