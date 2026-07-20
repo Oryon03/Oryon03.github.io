@@ -1,9 +1,17 @@
 import {
   loadDraws, frequency, bonusFrequency, gapSinceLastSeen, pairFrequency,
   sumStats, oddEvenSplit, highLowSplit, decadeDistribution,
-  buildScoreModel, generateSet, pickBonus, topN, makeRng,
+  buildScoreModel, generateSet, topN, makeRng,
   powerballFrequency, powerballGapSinceLastSeen, buildPowerballScoreModel, pickWeighted,
 } from './analysis.js';
+
+const MAX_LINES = 10;
+const STRATEGIES = {
+  balanced: { label: 'Balanced blend', desc: 'Mixes all-time frequency, recent form, and how overdue each number is.' },
+  hot: { label: 'Hot streak', desc: 'Weighted toward numbers drawn most often recently.' },
+  overdue: { label: 'Overdue watch', desc: 'Weighted toward numbers with the longest gap since they last appeared.' },
+  mixed: { label: 'Mixed', desc: 'Cycles through balanced / hot / overdue, one strategy per line.' },
+};
 
 const draws = loadDraws();
 const recentWindow = draws.slice(-104);
@@ -56,73 +64,84 @@ function renderDisclaimer() {
       line. What this page <em>does</em> do is real statistics on ${draws.length} actual past
       draws (frequency, gaps, pairs, sums) and turn that into number sets, purely as a fun way
       to explore patterns. The odds of matching all 6 remain about 1 in 3.8 million no matter
-      which numbers you pick.
+      which numbers you pick. The bonus ball isn't shown on generated lines because it isn't
+      something you choose — it's drawn automatically from the leftover 34 numbers on the night.
     </div>
   `;
 }
 
-function renderPredictionSets() {
+function weightMapForStrategy(strategy) {
+  if (strategy === 'hot') return new Map([...recentFreq.entries()]);
+  if (strategy === 'overdue') return new Map([...gaps.entries()].map(([n, g]) => [n, g ?? draws.length]));
+  return scoreModel; // balanced
+}
+
+function generateLines(count, strategy, includePowerball) {
   const rng = makeRng();
+  const mixOrder = ['balanced', 'hot', 'overdue'];
+  const lines = [];
+  for (let i = 0; i < count; i++) {
+    const lineStrategy = strategy === 'mixed' ? mixOrder[i % mixOrder.length] : strategy;
+    const weights = weightMapForStrategy(lineStrategy);
+    const main = generateSet(weights, rng, { sumRange: [sums.mean - 35, sums.mean + 35] });
+    const powerball = includePowerball ? pickWeighted(pbScoreModel, rng) : null;
+    lines.push({ main, powerball, strategy: lineStrategy });
+  }
+  return lines;
+}
 
-  const balanced = generateSet(scoreModel, rng, { sumRange: [sums.mean - 35, sums.mean + 35] });
-  const balancedBonus = pickBonus(bonusFreq, balanced, rng);
-
-  const hotWeights = new Map([...recentFreq.entries()]);
-  const hot = generateSet(hotWeights, rng, { sumRange: [0, 999] });
-  const hotBonus = pickBonus(bonusFreq, hot, rng);
-
-  const gapWeights = new Map([...gaps.entries()].map(([n, g]) => [n, g ?? draws.length]));
-  const overdue = generateSet(gapWeights, rng, { sumRange: [0, 999] });
-  const overdueBonus = pickBonus(bonusFreq, overdue, rng);
-
-  const sets = [
-    {
-      title: 'Balanced blend',
-      desc: 'Mixes all-time frequency, recent (last ~2 years) frequency, and how overdue each number is.',
-      main: balanced, bonus: balancedBonus,
-    },
-    {
-      title: 'Hot streak',
-      desc: `Weighted toward numbers drawn most often in the last ${recentWindow.length} draws.`,
-      main: hot, bonus: hotBonus,
-    },
-    {
-      title: 'Overdue watch',
-      desc: 'Weighted toward numbers with the longest gap since they last appeared.',
-      main: overdue, bonus: overdueBonus,
-    },
-  ];
-
-  const lottoHtml = sets.map((s) => `
-    <div class="card set-card">
-      <div class="set-title">${s.title}</div>
-      <div class="set-desc">${s.desc}</div>
-      <div class="ball-row">
-        ${s.main.map((n) => ball(n, 'main')).join('')}
-        <span class="lotto-ball--plus">+</span>
-        ${ball(s.bonus, 'bonus')}
-      </div>
-    </div>
-  `).join('');
-
-  const pbPick = pickWeighted(pbScoreModel, rng);
-  const powerballHtml = `
-    <div class="card set-card">
-      <div class="set-title">Powerball number</div>
-      <div class="set-desc">Same all-time / recent / overdue blend, applied to the 1–10 Powerball field (drawn since 2001).</div>
-      <div class="ball-row">${ball(pbPick, 'powerball')}</div>
+function renderLines(lines) {
+  return `
+    <div class="line-list">
+      ${lines.map((line, i) => `
+        <div class="line-row">
+          <span class="line-index">${i + 1}</span>
+          <div class="ball-row">
+            ${line.main.map((n) => ball(n, 'main')).join('')}
+            ${line.powerball !== null ? `<span class="lotto-ball--plus">+</span>${ball(line.powerball, 'powerball')}` : ''}
+          </div>
+          <span class="line-strategy">${STRATEGIES[line.strategy].label}</span>
+        </div>
+      `).join('')}
     </div>
   `;
+}
 
-  return lottoHtml + powerballHtml;
+function currentControls() {
+  const count = Math.min(MAX_LINES, Math.max(1, parseInt(document.getElementById('lineCount').value, 10) || 1));
+  const strategy = document.getElementById('lineStrategy').value;
+  const includePowerball = document.getElementById('includePowerball').checked;
+  return { count, strategy, includePowerball };
 }
 
 function renderPredictionSection() {
+  const count = 3;
+  const strategy = 'mixed';
+  const includePowerball = true;
+  const lines = generateLines(count, strategy, includePowerball);
   return `
     <h2 class="section-title">Generated number sets</h2>
-    <div id="predictionSets" class="card-grid">${renderPredictionSets()}</div>
-    <div class="btn-row">
-      <button class="btn btn-primary" id="regenerateBtn">Generate new sets</button>
+    <div class="card">
+      <div class="line-controls">
+        <label class="field-inline">
+          <span>Lines</span>
+          <input type="number" id="lineCount" min="1" max="${MAX_LINES}" value="${count}" />
+        </label>
+        <label class="field-inline">
+          <span>Strategy</span>
+          <select id="lineStrategy">
+            ${Object.entries(STRATEGIES).map(([k, v]) => `<option value="${k}" ${k === strategy ? 'selected' : ''}>${v.label}</option>`).join('')}
+          </select>
+        </label>
+        <label class="field-inline field-inline--checkbox">
+          <input type="checkbox" id="includePowerball" ${includePowerball ? 'checked' : ''} />
+          <span>Include a Powerball number per line</span>
+        </label>
+      </div>
+      <div id="predictionSets">${renderLines(lines)}</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="regenerateBtn">Generate</button>
+      </div>
     </div>
   `;
 }
@@ -284,7 +303,8 @@ function render() {
   `;
 
   document.getElementById('regenerateBtn').addEventListener('click', () => {
-    document.getElementById('predictionSets').innerHTML = renderPredictionSets();
+    const { count, strategy, includePowerball } = currentControls();
+    document.getElementById('predictionSets').innerHTML = renderLines(generateLines(count, strategy, includePowerball));
   });
 }
 
