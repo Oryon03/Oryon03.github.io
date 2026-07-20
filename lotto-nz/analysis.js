@@ -5,6 +5,12 @@ const MAX_NUM = 40;
 const POWERBALL_MIN = 1;
 const POWERBALL_MAX = 10;
 
+// Powerball launched in 2001 drawing from a 1-8 pool; the pool was expanded to
+// 1-10 from this draw onward. Stats/generation should only use draws from here
+// on, otherwise 9 and 10 look artificially under-drawn (they were literally
+// impossible to draw before this point, not "cold").
+export const POWERBALL_TEN_BALL_START_DRAW = 1073;
+
 export function loadDraws() {
   const draws = [];
   for (let i = 0; i < RAW_DRAWS.length; i += 10) {
@@ -227,6 +233,7 @@ export function pickBonus(bonusFreqMap, exclude, rng) {
 }
 
 // Same all-time/recent/overdue blend as buildScoreModel, applied to the 1-10 Powerball field.
+// `draws` should already be filtered to POWERBALL_TEN_BALL_START_DRAW onward.
 export function buildPowerballScoreModel(draws) {
   const withPb = draws.filter((d) => d.powerball !== null);
   const recentWindow = withPb.slice(-104);
