@@ -3,6 +3,7 @@ import {
   sumStats, oddEvenSplit, highLowSplit, decadeDistribution,
   buildScoreModel, generateSet, topN, makeRng,
   powerballFrequency, powerballGapSinceLastSeen, buildPowerballScoreModel, pickWeighted,
+  POWERBALL_TEN_BALL_START_DRAW,
 } from './analysis.js';
 
 const MAX_LINES = 10;
@@ -27,12 +28,15 @@ const highLow = highLowSplit(draws);
 const decades = decadeDistribution(draws);
 const scoreModel = buildScoreModel(draws);
 
-const powerballDraws = draws.filter((d) => d.powerball !== null);
+// Only draws since the Powerball pool became 1-10 (see analysis.js) --
+// earlier draws only ever drew 1-8, so including them would make 9 and 10
+// look artificially "cold" when they were simply impossible back then.
+const powerballDraws = draws.filter((d) => d.powerball !== null && d.drawNumber >= POWERBALL_TEN_BALL_START_DRAW);
 const pbRecentWindow = powerballDraws.slice(-104);
 const pbFreq = powerballFrequency(powerballDraws);
 const pbRecentFreq = powerballFrequency(pbRecentWindow);
 const pbGaps = powerballGapSinceLastSeen(powerballDraws);
-const pbScoreModel = buildPowerballScoreModel(draws);
+const pbScoreModel = buildPowerballScoreModel(powerballDraws);
 const pbStart = powerballDraws[0];
 
 const first = draws[0];
@@ -299,7 +303,7 @@ function render() {
         (v) => `${v} draws ago`,
       )}
     </div>
-    ${renderFreqChart(pbFreq, 1, 10, 'All-time frequency, Powerball (1–10)', `Since Powerball began (draw ${pbStart.drawNumber}, ${fmtDate(pbStart.date)}), across ${powerballDraws.length} draws.`)}
+    ${renderFreqChart(pbFreq, 1, 10, 'All-time frequency, Powerball (1–10)', `Since the Powerball pool expanded to 1–10 (draw ${pbStart.drawNumber}, ${fmtDate(pbStart.date)} — it was 1–8 before that), across ${powerballDraws.length} draws.`)}
   `;
 
   document.getElementById('regenerateBtn').addEventListener('click', () => {
