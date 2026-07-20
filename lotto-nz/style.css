@@ -1,0 +1,149 @@
+.back-link {
+  display: inline-block;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+.back-link:hover { color: var(--text); }
+
+.disclaimer {
+  border-color: var(--danger);
+  background: #2a171b;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.disclaimer strong { color: #ffb3c0; }
+
+.section-title {
+  font-size: 1.15rem;
+  margin: 28px 0 10px;
+}
+.section-title:first-child { margin-top: 0; }
+
+/* --- number / bonus balls --- */
+.ball-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.lotto-ball {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  background: var(--bg-alt);
+  border: 2px solid var(--card-border);
+  color: var(--text);
+}
+
+.lotto-ball--main { border-color: var(--accent); }
+.lotto-ball--bonus {
+  border-color: var(--accent2);
+  border-style: dashed;
+}
+
+.lotto-ball--powerball {
+  border-color: var(--danger);
+  background: #2a171b;
+}
+.lotto-ball--plus { color: var(--text-dim); font-weight: 400; font-size: 1.2rem; }
+
+.set-card {
+  margin-bottom: 14px;
+}
+.set-title { font-weight: 700; margin-bottom: 4px; }
+.set-desc { color: var(--text-dim); font-size: 0.82rem; margin-bottom: 10px; }
+
+/* --- frequency bar chart (sequential hue = magnitude) --- */
+.freq-chart {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px 14px;
+}
+
+.freq-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 28px;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+}
+
+.freq-num { color: var(--text-dim); text-align: right; }
+
+.freq-track {
+  position: relative;
+  height: 8px;
+  background: var(--bg-alt);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+}
+
+.freq-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+.freq-fill--cold { background: #3a4358; }
+
+.freq-count { text-align: right; color: var(--text-dim); }
+
+.legend-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+.legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.pair-list, .rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+.pair-list li, .rank-list li {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 4px;
+}
+.rank-list .rank-value, .pair-list .pair-value { color: var(--text-dim); }
+
+.split-bars { display: flex; flex-direction: column; gap: 8px; }
+.split-bar-row { font-size: 0.82rem; }
+.split-bar-label { display: flex; justify-content: space-between; margin-bottom: 3px; color: var(--text-dim); }
+.split-bar-track {
+  height: 8px;
+  background: var(--bg-alt);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.split-bar-fill { height: 100%; background: var(--accent2); }
+
+@media (max-width: 600px) {
+  .freq-chart { grid-template-columns: repeat(2, 1fr); }
+}

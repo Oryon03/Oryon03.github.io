@@ -1,0 +1,37 @@
+name: Update NZ Lotto data
+
+on:
+  schedule:
+    # Daily, well after both the Wednesday and Saturday NZT draw nights.
+    - cron: "0 10 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Fetch latest draws and refresh dataset
+        run: python3 scripts/update_lotto_data.py
+
+      - name: Commit and push if data changed
+        run: |
+          if git diff --quiet -- lotto-nz/draws-data.js; then
+            echo "No new draws, nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lotto-nz/draws-data.js
+          git commit -m "Update NZ Lotto draw data"
+          git push origin HEAD:main
