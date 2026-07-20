@@ -99,6 +99,12 @@
 }
 .field-inline--checkbox input { width: 16px; height: 16px; }
 
+.line-list-hint {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin: 0 0 10px;
+}
+
 .line-list {
   display: flex;
   flex-direction: column;
@@ -114,6 +120,23 @@
   border-bottom: 1px solid var(--card-border);
 }
 .line-row:last-child { border-bottom: none; }
+
+.line-reveal-btn {
+  display: none;
+  background: var(--bg-alt);
+  border: 1px dashed var(--card-border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.line-reveal-btn:hover { border-color: var(--accent); color: var(--text); }
+
+.line-row.line-hidden .line-reveal-btn { display: inline-block; }
+.line-row.line-hidden .ball-row { display: none; }
+.line-row:not(.line-hidden) .line-reveal-btn { display: none; }
 
 .line-index {
   color: var(--text-dim);

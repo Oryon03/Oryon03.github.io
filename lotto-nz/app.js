@@ -96,10 +96,12 @@ function generateLines(count, strategy, includePowerball) {
 
 function renderLines(lines) {
   return `
+    <p class="line-list-hint">Numbers are already generated below — tap a line when you actually want to see it, no pressure to look at all of them.</p>
     <div class="line-list">
       ${lines.map((line, i) => `
-        <div class="line-row">
+        <div class="line-row line-hidden">
           <span class="line-index">${i + 1}</span>
+          <button type="button" class="line-reveal-btn">Tap to reveal</button>
           <div class="ball-row">
             ${line.main.map((n) => ball(n, 'main')).join('')}
             ${line.powerball !== null ? `<span class="lotto-ball--plus">+</span>${ball(line.powerball, 'powerball')}` : ''}
@@ -309,6 +311,12 @@ function render() {
   document.getElementById('regenerateBtn').addEventListener('click', () => {
     const { count, strategy, includePowerball } = currentControls();
     document.getElementById('predictionSets').innerHTML = renderLines(generateLines(count, strategy, includePowerball));
+  });
+
+  // Delegated so it keeps working after regenerateBtn replaces predictionSets' contents.
+  document.getElementById('predictionSets').addEventListener('click', (e) => {
+    const btn = e.target.closest('.line-reveal-btn');
+    if (btn) btn.closest('.line-row').classList.remove('line-hidden');
   });
 }
 
