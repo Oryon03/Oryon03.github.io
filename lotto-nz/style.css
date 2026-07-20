@@ -61,6 +61,74 @@
 .set-title { font-weight: 700; margin-bottom: 4px; }
 .set-desc { color: var(--text-dim); font-size: 0.82rem; margin-bottom: 10px; }
 
+.line-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.field-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.field-inline input[type="number"],
+.field-inline select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-alt);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.field-inline input[type="number"] { width: 70px; }
+
+.field-inline--checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+.field-inline--checkbox input { width: 16px; height: 16px; }
+
+.line-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--card-border);
+}
+.line-row:last-child { border-bottom: none; }
+
+.line-index {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.line-strategy {
+  margin-left: auto;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 /* --- frequency bar chart (sequential hue = magnitude) --- */
 .freq-chart {
   display: grid;
