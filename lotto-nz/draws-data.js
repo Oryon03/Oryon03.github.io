@@ -1,4 +1,4 @@
-// Historical NZ Lotto + Powerball results, draw 1 (1 Aug 1987) to draw 2609 (5 Aug 2026).
+// Historical NZ Lotto + Powerball results, draw 1 (1 Aug 1987) to draw 2610 (8 Aug 2026).
 // Source: official Lotto NZ (mylotto.co.nz) archive for draws 1-2308, cross-checked
 // public results archives (lottoresults.co.nz, lotto.net) for later draws. Refreshed
 // automatically by .github/workflows/update-lotto-data.yml.
@@ -657,5 +657,5 @@ export const RAW_DRAWS = [
   2597,20260624,5,7,12,30,32,36,40,6,  2598,20260627,2,7,21,24,29,37,17,10,  2599,20260701,1,7,11,32,35,40,39,1,  2600,20260704,2,15,17,18,26,30,28,9,
   2601,20260708,12,15,27,28,35,40,9,7,  2602,20260711,10,21,22,26,37,40,15,6,  2603,20260715,6,10,14,19,20,27,39,1,  2604,20260718,13,28,30,31,34,35,10,9,
   2605,20260722,3,18,25,26,30,34,37,10,  2606,20260725,1,12,14,18,22,29,32,8,  2607,20260729,8,19,21,32,33,35,17,6,  2608,20260801,8,14,15,24,26,30,7,4,
-  2609,20260805,4,13,16,24,32,37,38,2,
+  2609,20260805,4,13,16,24,32,37,38,2,  2610,20260808,9,13,21,24,25,35,5,8,
 ];
